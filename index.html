@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Search</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+
+    #resultsContainer {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .product {
+      background-color: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .product h3 {
+      margin-top: 0;
+    }
+
+    .product p {
+      margin: 5px 0;
+    }
+
+    #searchContainer {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    #searchInput {
+      padding: 10px;
+      width: 300px;
+      margin-right: 10px;
+      font-size: 16px;
+    }
+
+    #searchButton {
+      padding: 10px 15px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    #searchButton:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="searchContainer">
+    <input type="text" id="searchInput" onkeyup="searchProducts()" placeholder="Search products...">
+    <button id="searchButton" onclick="searchProducts()">Search</button>
+  </div>
+
+  <div id="resultsContainer">
+    <!-- Product results will be dynamically populated here -->
+  </div>
+
+  <script>
+          async function searchProducts() {
+  const query = document.getElementById('searchInput').value.trim();
+
+  if (!query) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`http://146.190.213.56:3000/search?q=${query}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch results');
+    }
+
+    const data = await response.json();
+    console.log(data);  // Debugging output
+    displayResults(data); // Render results to the page
+
+  } catch (error) {
+    console.error("Error:", error);
+    alert('Failed to fetch results');
+  }
+}
+
+function displayResults(products) {
+  const resultsContainer = document.getElementById('resultsContainer');
+  resultsContainer.innerHTML = ''; // Clear previous results
+
+  if (products.length === 0) {
+    resultsContainer.innerHTML = '<p>No products found</p>';
+    return;
+  }
+
+  // Loop through products and display them
+  products.forEach(product => {
+    const productElement = document.createElement('div');
+    productElement.classList.add('product');
+    productElement.innerHTML = `
+      <h3>${product.name}</h3>
+      <p><strong>Description:</strong> ${product.description}</p>
+      <p><strong>Price:</strong> $${product.price}</p>
+    `;
+    resultsContainer.appendChild(productElement);
+  });
+}
+
+  </script>
+</body>
+</html>
